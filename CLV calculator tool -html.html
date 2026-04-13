@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CLV Calculator | Customer Lifetime Value Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e9eff7 0%, #dbe4ee 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Main card container */
+        .clv-card {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.25), 0 8px 18px rgba(0,0,0,0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* Header area */
+        .clv-header {
+            background: #1a2c3e;
+            padding: 1.8rem 2rem;
+            color: white;
+        }
+
+        .clv-header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .clv-header h1 span {
+            background: #f39c12;
+            font-size: 1rem;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            font-weight: 500;
+            letter-spacing: normal;
+        }
+
+        .clv-header p {
+            margin-top: 0.6rem;
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+
+        /* Two-column layout */
+        .clv-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* Input panel */
+        .input-panel {
+            flex: 1.2;
+            min-width: 280px;
+            background: #ffffff;
+            padding: 2rem 1.8rem;
+            border-right: 1px solid #eef2f8;
+        }
+
+        .input-group {
+            margin-bottom: 1.6rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #1e2f3f;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group label i {
+            font-style: normal;
+            font-weight: 400;
+            color: #5e7a93;
+        }
+
+        .input-field {
+            display: flex;
+            align-items: center;
+            background: #f8fafd;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            transition: 0.2s;
+            padding: 0.1rem 0.5rem;
+        }
+
+        .input-field:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+            background: white;
+        }
+
+        .currency-symbol, .percent-symbol, .time-symbol {
+            padding: 0 0.5rem;
+            font-weight: 600;
+            color: #4b6b8f;
+            font-size: 1rem;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 0.85rem 0.5rem 0.85rem 0;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #0a1c2c;
+            outline: none;
+        }
+
+        .input-field input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .input-field input[type="number"]::-webkit-inner-spin-button,
+        .input-field input[type="number"]::-webkit-outer-spin-button {
+            opacity: 0.5;
+        }
+
+        .hint-text {
+            font-size: 0.7rem;
+            color: #6c86a0;
+            margin-top: 0.4rem;
+            margin-left: 0.3rem;
+        }
+
+        /* result panel */
+        .result-panel {
+            flex: 1;
+            background: #fefefe;
+            padding: 2rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .clv-big-number {
+            background: linear-gradient(135deg, #0f2b3d 0%, #143445 100%);
+            border-radius: 2rem;
+            padding: 1.5rem 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1);
+        }
+
+        .clv-label {
+            color: #bdd4e6;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .clv-value {
+            font-size: 3.2rem;
+            font-weight: 800;
+            color: white;
+            margin: 0.4rem 0;
+            word-break: break-word;
+            line-height: 1.2;
+        }
+
+        .clv-value small {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .clv-sub {
+            color: #9bb7d0;
+            font-size: 0.8rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: #f1f5f9;
+            border-radius: 1.2rem;
+            padding: 1rem;
+            text-align: center;
+            transition: 0.1s;
+        }
+
+        .metric-card h4 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #4a627a;
+            letter-spacing: 0.6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-number {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #1e2f3f;
+        }
+
+        .metric-number small {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .breakdown {
+            background: #fafcff;
+            border-radius: 1.2rem;
+            border: 1px solid #eef2f8;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px dashed #e2edf7;
+            font-size: 0.85rem;
+        }
+
+        .breakdown-item:last-child {
+            border: none;
+        }
+
+        .breakdown-label {
+            color: #2c4c6e;
+            font-weight: 500;
+        }
+
+        .breakdown-value {
+            font-weight: 700;
+            color: #1a2c3e;
+        }
+
+        button {
+            background: #2c5a7a;
+            border: none;
+            color: white;
+            padding: 0.8rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            width: 100%;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: #1f415c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -8px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn {
+            background: #e2e8f0;
+            color: #1f3b4c;
+            margin-top: 0.5rem;
+        }
+
+        .reset-btn:hover {
+            background: #cbd5e1;
+        }
+
+        footer {
+            background: #f8fafc;
+            padding: 0.8rem 2rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #5f7f9c;
+            border-top: 1px solid #eef2f8;
+        }
+
+        @media (max-width: 750px) {
+            .clv-dashboard {
+                flex-direction: column;
+            }
+            .input-panel {
+                border-right: none;
+                border-bottom: 1px solid #eef2f8;
+            }
+            .clv-value {
+                font-size: 2.4rem;
+            }
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            background: #cbdde9;
+            border-radius: 30px;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            text-align: center;
+            line-height: 16px;
+            font-weight: bold;
+            color: #1e2f3f;
+            cursor: help;
+            margin-left: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="clv-card">
+    <div class="clv-header">
+        <h1>
+            💎 Customer Lifetime Value 
+            <span>CLV Calculator</span>
+        </h1>
+        <p>Estimate long-term profitability per customer · Data-driven retention strategy</p>
+    </div>
+    <div class="clv-dashboard">
+        <!-- Inputs section -->
+        <div class="input-panel">
+            <div class="input-group">
+                <label>💰 Average Purchase Value <span class="tooltip-icon" title="Average amount a customer spends per transaction">ⓘ</span></label>
+                <div class="input-field">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="avgPurchase" value="45.00" step="5" placeholder="e.g., 45">
+                </div>
+                <div class="hint-text">Revenue per typical order</div>
+            </div>
+
+            <div class="input-group">
+                <label>🔄 Purchase Frequency <span class="tooltip-icon" title="Number of purchases per year (average)">ⓘ</span></label>
+                <div class="input-field">
+                    <input type="number" id="frequency" value="3.5" step="0.5" placeholder="e.g., 3.5">
+                    <span class="time-symbol">/ year</span>
+                </div>
+                <div class="hint-text">Transactions per customer each year</div>
+            </div>
+
+            <div class="input-group">
+                <label>⏱️ Customer Lifespan <span class="tooltip-icon" title="Average number of years a customer stays active">ⓘ</span></label>
+                <div class="input-field">
+                    <input type="number" id="lifespan" value="4.0" step="0.5" placeholder="e.g., 4">
+                    <span class="time-symbol">years</span>
+                </div>
+                <div class="hint-text">Duration of customer relationship</div>
+            </div>
+
+            <div class="input-group">
+                <label>📉 Gross Margin % <span class="tooltip-icon" title="Profit margin after COGS (e.g., 40% = 0.4)">ⓘ</span></label>
+                <div class="input-field">
+                    <input type="number" id="margin" value="38.0" step="2" placeholder="e.g., 38">
+                    <span class="percent-symbol">%</span>
+                </div>
+                <div class="hint-text">Profitability percentage per purchase</div>
+            </div>
+
+            <div class="input-group">
+                <label>🧲 CAC (optional) <span class="tooltip-icon" title="Customer Acquisition Cost - shows net CLV after acquisition">ⓘ</span></label>
+                <div class="input-field">
+                    <span class="currency-symbol">$</span>
+                    <input type="number" id="cac" value="25.00" step="5" placeholder="e.g., 25">
+                </div>
+                <div class="hint-text">Subtracted from gross CLV for net value</div>
+            </div>
+
+            <div class="input-group">
+                <label>📈 Retention / Discount Rate (optional) <span class="tooltip-icon" title="Annual discount factor (e.g., 10% as 0.10) for present value">ⓘ</span></label>
+                <div class="input-field">
+                    <input type="number" id="discountRate" value="8.0" step="1" placeholder="e.g., 8">
+                    <span class="percent-symbol">%</span>
+                </div>
+                <div class="hint-text">Adjusts future cash flows (time value of money)</div>
+            </div>
+
+            <button id="calcBtn">⟳ Calculate CLV</button>
+            <button id="resetBtn" class="reset-btn">↺ Reset to Defaults</button>
+        </div>
+
+        <!-- Results area -->
+        <div class="result-panel">
+            <div class="clv-big-number">
+                <div class="clv-label">Estimated Lifetime Value (Gross CLV)</div>
+                <div class="clv-value" id="grossCLVDisplay">$0.00</div>
+                <div class="clv-sub">per customer · before acquisition cost</div>
+            </div>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Net CLV (after CAC)</h4>
+                    <div class="metric-number" id="netCLVDisplay">$0.00</div>
+                </div>
+                <div class="metric-card">
+                    <h4>Customer Annual Value</h4>
+                    <div class="metric-number" id="annualValueDisplay">$0.00</div>
+                </div>
+            </div>
+            <div class="breakdown">
+                <div class="breakdown-item">
+                    <span class="breakdown-label">💰 Avg. Purchase Value</span>
+                    <span class="breakdown-value" id="showAvgPurchase">$45.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🔄 Purchase Frequency (per year)</span>
+                    <span class="breakdown-value" id="showFreq">3.50 /yr</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">📅 Customer Lifespan</span>
+                    <span class="breakdown-value" id="showLifespan">4.00 yrs</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">📊 Gross Margin</span>
+                    <span class="breakdown-value" id="showMargin">38.0%</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">💸 Customer Acquisition Cost (CAC)</span>
+                    <span class="breakdown-value" id="showCac">$25.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">🏦 Discount Rate (PV factor)</span>
+                    <span class="breakdown-value" id="showDiscount">8.0%</span>
+                </div>
+                <div class="breakdown-item" style="border-top: 1px solid #dce5ef; margin-top: 4px; padding-top: 8px;">
+                    <span class="breakdown-label">📐 Formula: (AOV × Freq) × Margin × (1 - (1/(1+r))^n)/r*</span>
+                    <span class="breakdown-value" style="font-size: 0.7rem;">Present value adjusted</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        ⚡ CLV = (Average Purchase Value × Purchase Frequency) × Gross Margin % × (Customer Lifespan adjusted with discount rate). 
+        Net CLV = Gross CLV – CAC.
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // DOM elements
+        const avgPurchaseInput = document.getElementById('avgPurchase');
+        const frequencyInput = document.getElementById('frequency');
+        const lifespanInput = document.getElementById('lifespan');
+        const marginInput = document.getElementById('margin');
+        const cacInput = document.getElementById('cac');
+        const discountRateInput = document.getElementById('discountRate');
+
+        // result display spans
+        const grossCLVSpan = document.getElementById('grossCLVDisplay');
+        const netCLVSpan = document.getElementById('netCLVDisplay');
+        const annualValueSpan = document.getElementById('annualValueDisplay');
+
+        // breakdown spans
+        const showAvgPurchaseSpan = document.getElementById('showAvgPurchase');
+        const showFreqSpan = document.getElementById('showFreq');
+        const showLifespanSpan = document.getElementById('showLifespan');
+        const showMarginSpan = document.getElementById('showMargin');
+        const showCacSpan = document.getElementById('showCac');
+        const showDiscountSpan = document.getElementById('showDiscount');
+
+        const calcBtn = document.getElementById('calcBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Helper: parse float safely
+        function parseNumber(id, defaultValue) {
+            let val = parseFloat(document.getElementById(id).value);
+            return isNaN(val) ? defaultValue : val;
+        }
+
+        // Present value annuity factor: (1 - (1/(1+r))^n) / r   if r>0, else n
+        function annuityFactor(ratePerPeriod, periods) {
+            if (periods <= 0) return 0;
+            if (ratePerPeriod === 0) return periods;
+            return (1 - Math.pow(1 / (1 + ratePerPeriod), periods)) / ratePerPeriod;
+        }
+
+        // Core CLV calculation with discounting and margin
+        // Gross CLV = (AOV * annualFreq) * marginFraction * annuityFactor(discountRate, lifespanYears)
+        function computeGrossCLV(aov, annualFreq, lifespanYears, marginPercent, discountPercent) {
+            const marginFraction = marginPercent / 100;
+            const annualContribution = aov * annualFreq;       // revenue per year
+            const annualProfit = annualContribution * marginFraction; // profit per year (gross margin)
+            
+            const discountRateDecimal = discountPercent / 100;
+            let factor = annuityFactor(discountRateDecimal, lifespanYears);
+            let grossCLV = annualProfit * factor;
+            // guard for extreme numbers, but keep precision
+            if (isNaN(grossCLV) || !isFinite(grossCLV)) grossCLV = 0;
+            return Math.max(0, grossCLV);
+        }
+
+        // Simple annual value (for display)
+        function computeAnnualValue(aov, annualFreq, marginPercent) {
+            return (aov * annualFreq) * (marginPercent / 100);
+        }
+
+        // Update all UI
+        function updateCalculator() {
+            // get values
+            let aov = parseNumber('avgPurchase', 45);
+            let freq = parseNumber('frequency', 3.5);
+            let lifespan = parseNumber('lifespan', 4);
+            let marginPct = parseNumber('margin', 38);
+            let cac = parseNumber('cac', 25);
+            let discount = parseNumber('discountRate', 8);
+
+            // clamp positive values & prevent negative inputs
+            aov = Math.max(0, aov);
+            freq = Math.max(0, freq);
+            lifespan = Math.max(0, lifespan);
+            marginPct = Math.min(100, Math.max(0, marginPct));
+            cac = Math.max(0, cac);
+            discount = Math.max(0, Math.min(50, discount));  // sane cap
+
+            // update breakdown display
+            showAvgPurchaseSpan.innerText = `$${aov.toFixed(2)}`;
+            showFreqSpan.innerText = `${freq.toFixed(2)} /yr`;
+            showLifespanSpan.innerText = `${lifespan.toFixed(2)} yrs`;
+            showMarginSpan.innerText = `${marginPct.toFixed(1)}%`;
+            showCacSpan.innerText = `$${cac.toFixed(2)}`;
+            showDiscountSpan.innerText = `${discount.toFixed(1)}%`;
+
+            // annual profit contribution (before CLV factor)
+            let annualVal = computeAnnualValue(aov, freq, marginPct);
+            annualValueSpan.innerText = `$${annualVal.toFixed(2)}`;
+
+            // compute Gross CLV (discounted)
+            let grossCLV = computeGrossCLV(aov, freq, lifespan, marginPct, discount);
+            let netCLV = grossCLV - cac;
+            if (netCLV < 0) netCLV = 0;   // show zero if negative, but we can display negative realistic: but better show actual net, can be negative if CAC high
+            // but to be accurate, we show as is (negative possible)
+            netCLV = grossCLV - cac; // keep negative if necessary for business insight
+
+            grossCLVSpan.innerText = `$${grossCLV.toFixed(2)}`;
+            netCLVSpan.innerText = `$${netCLV.toFixed(2)}`;
+            
+            // slight nuance: add a small style if netCLV negative
+            if (netCLV < 0) {
+                netCLVSpan.style.color = "#c2410c";
+            } else {
+                netCLVSpan.style.color = "#1e2f3f";
+            }
+        }
+
+        // Function to set default values
+        function setDefaultValues() {
+            avgPurchaseInput.value = "45.00";
+            frequencyInput.value = "3.5";
+            lifespanInput.value = "4.0";
+            marginInput.value = "38.0";
+            cacInput.value = "25.00";
+            discountRateInput.value = "8.0";
+            updateCalculator();
+        }
+
+        // Event listeners for realtime on any input change? We'll attach for convenience but keep button as primary, but also on input changes?
+        // Better to also listen for input events to give dynamic feedback. User experience: update on each input change.
+        function attachRealtimeEvents() {
+            const inputs = [avgPurchaseInput, frequencyInput, lifespanInput, marginInput, cacInput, discountRateInput];
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateCalculator();
+                });
+                input.addEventListener('change', function() {
+                    // ensure values are within range
+                    if (marginInput.value < 0) marginInput.value = 0;
+                    if (marginInput.value > 100) marginInput.value = 100;
+                    if (discountRateInput.value < 0) discountRateInput.value = 0;
+                    if (discountRateInput.value > 50) discountRateInput.value = 50;
+                    if (avgPurchaseInput.value < 0) avgPurchaseInput.value = 0;
+                    if (frequencyInput.value < 0) frequencyInput.value = 0;
+                    if (lifespanInput.value < 0) lifespanInput.value = 0;
+                    if (cacInput.value < 0) cacInput.value = 0;
+                    updateCalculator();
+                });
+            });
+        }
+
+        // Advanced validation and formatting on blur
+        function addSanityBlur() {
+            const blurs = [
+                { el: avgPurchaseInput, min: 0, def: 45 },
+                { el: frequencyInput, min: 0, def: 3.5 },
+                { el: lifespanInput, min: 0, def: 4 },
+                { el: marginInput, min: 0, max: 100, def: 38 },
+                { el: cacInput, min: 0, def: 25 },
+                { el: discountRateInput, min: 0, max: 50, def: 8 }
+            ];
+            blurbs.forEach(item => {
+                item.el.addEventListener('blur', function() {
+                    let val = parseFloat(item.el.value);
+                    if (isNaN(val)) val = item.def;
+                    if (item.min !== undefined && val < item.min) val = item.min;
+                    if (item.max !== undefined && val > item.max) val = item.max;
+                    item.el.value = val.toFixed(2);
+                    updateCalculator();
+                });
+            });
+        }
+
+        // Reset button with full default
+        resetBtn.addEventListener('click', () => {
+            setDefaultValues();
+        });
+
+        calcBtn.addEventListener('click', () => {
+            // just re-run update, same as realtime but also ensures any manual sync
+            updateCalculator();
+            // optional flash effect: subtle animation
+            grossCLVSpan.style.transform = "scale(1.02)";
+            setTimeout(() => { grossCLVSpan.style.transform = ""; }, 150);
+        });
+
+        // initial load
+        setDefaultValues();
+        attachRealtimeEvents();
+        addSanityBlur();
+        // extra: set CLV on page ready
+        window.addEventListener('DOMContentLoaded', () => {
+            updateCalculator();
+        });
+    })();
+</script>
+</body>
+</html>
